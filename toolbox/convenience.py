@@ -3,6 +3,8 @@ import nibabel as nb
 import numpy as np
 import cv2
 
+CT_SIZE = 512
+
 def quantize_hu_rgb(hu_data, window_length=-600, window_width=1500):
     """
     Quantize HU in 256
@@ -45,6 +47,14 @@ def dicom_to_jpeg(dicom_file, window_length=-600, window_width=1500):
     b = ds.RescaleIntercept
     m = ds.RescaleSlope
     slice = m * ds.pixel_array + b
+
+    # remove padding (don't know why some slices come with padding)
+    if ds.Rows > CT_SIZE:
+        row_padding = max(ds.Rows - 512, 0) // 2
+        slice = slice[row_padding:-row_padding,:]
+    if ds.Columns > CT_SIZE:
+        column_padding = max(ds.Columns - 512, 0) // 2
+        slice = slice[:, column_padding:-column_padding]
 
     jpeg = quantize_hu_rgb(slice, window_length, window_width)
 
