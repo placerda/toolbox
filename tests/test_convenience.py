@@ -19,5 +19,13 @@ class TestToolbox(unittest.TestCase):
         plt.show()
         self.assertEqual(len(result.shape), 3)
 
+    def test_raw_to_jpeg(self):
+        filename = './tests/testdata/dummy.mhd'
+        result = toolbox.raw_to_jpeg(filename)
+        plt.title('test_raw_to_jpeg')
+        plt.imshow(result)
+        plt.show()
+        self.assertEqual(len(result.shape), 3)
+
 if __name__ == '__main__':
     unittest.main()
