@@ -11,14 +11,6 @@ class TestToolbox(unittest.TestCase):
         plt.show()
         self.assertEqual(len(result.shape), 3)
 
-    def test_nifti_to_jpeg(self):
-        filename = './tests/testdata/dummy.nii.gz'
-        result = toolbox.nifti_to_jpeg(filename)
-        plt.title('test_nifti_to_jpeg')
-        plt.imshow(result)
-        plt.show()
-        self.assertEqual(len(result.shape), 3)
-
     def test_raw_to_jpeg(self):
         filename = './tests/testdata/dummy.mhd'
         result = toolbox.raw_to_jpeg(filename)
@@ -26,6 +18,15 @@ class TestToolbox(unittest.TestCase):
         plt.imshow(result)
         plt.show()
         self.assertEqual(len(result.shape), 3)
+
+    def test_nifti_to_jpeg(self):
+        filename = './tests/testdata/dummy.nii.gz'
+        slices = 1
+        result = toolbox.nifti_to_jpeg(filename, slices)
+        plt.title('test_nifti_to_jpeg')
+        plt.imshow(result[0])
+        plt.show()
+        self.assertEqual(len(result), slices)
 
 if __name__ == '__main__':
     unittest.main()

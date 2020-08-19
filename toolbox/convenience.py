@@ -14,7 +14,6 @@ def quantize_hu_rgb(hu_data, window_length=-600, window_width=1500):
     :param window_width: DICOM's window width, by default uses lung best window
     :return: ndarray of shape (m, n, 3) type uint8
     """
-
     # quantization parameters
     WINDOW_LENGHT=window_length
     WINDOW_WIDTH=window_width
@@ -61,29 +60,31 @@ def dicom_to_jpeg(dicom_file, window_length=-600, window_width=1500):
 
     return jpeg
 
-def nifti_to_jpeg(nifti_file, window_length=-600, window_width=1500):
+def nifti_to_jpeg(nifti_file, num_slices=1, window_length=-600, window_width=1500):
     """
     Reads NifTI file and returns middle slice in JPEG equivalent format
     :param nifti_file: NifTI file path
+    :param num_slices: Number of slices to return (from the middle)
     :param window_length: HU window length, by default uses lung best window
     :param window_width: HU window width, by default uses lung best window
-    :return: ndarray of shape (n, n, 3)
+    :return: list of ndarrays of shape (n, n, 3)
     """
     # load nifti
     img = nb.load(nifti_file)
     data = img.get_fdata()
-
     # get middle slice
     mean = data.shape[2] // 2
-    slice = data[:,:,mean]
+    start = mean - (num_slices // 2)
+    jpegs = []
+    for i in range(start, start + num_slices):
+        slice = data[:, :, i]
+        slice = np.rot90(slice) # rotates nifti
+        jpeg = quantize_hu_rgb(slice, window_length, window_width)
+        jpegs.append(jpeg)
 
-    # rotates nifti
-    slice = np.rot90(slice)
-    jpeg = quantize_hu_rgb(slice, window_length, window_width)
+    return jpegs
 
-    return jpeg
-
-def raw_to_jpeg(mhd_file, window_length=-600, window_width=1500):
+def raw_to_jpeg(mhd_file, num_slices=1, window_length=-600, window_width=1500):
     """
     Reads mhd file and returns middle slice in JPEG equivalent format
     :param mhd_file: mhd file path
@@ -95,11 +96,13 @@ def raw_to_jpeg(mhd_file, window_length=-600, window_width=1500):
     image = sitk.ReadImage(mhd_file)
     ct_scan = sitk.GetArrayFromImage(image)  # coordinates in z,y,x format
 
-    mean = ct_scan.shape[0] // 2
-
     # get middle slice
-    middle_slice = ct_scan[mean, :, :]
-
-    jpeg = quantize_hu_rgb(middle_slice, window_length, window_width)
+    mean = ct_scan.shape[0] // 2
+    start = mean - (num_slices // 2)
+    jpegs = []
+    for i in range(start, start + num_slices):
+        slice = ct_scan[i, :, :]
+        jpeg = quantize_hu_rgb(slice, window_length, window_width)
+        jpegs.append(jpeg)
 
     return jpeg
