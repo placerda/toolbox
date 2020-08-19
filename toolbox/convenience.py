@@ -105,4 +105,4 @@ def raw_to_jpeg(mhd_file, num_slices=1, window_length=-600, window_width=1500):
         jpeg = quantize_hu_rgb(slice, window_length, window_width)
         jpegs.append(jpeg)
 
-    return jpeg
+    return jpegs

@@ -13,11 +13,12 @@ class TestToolbox(unittest.TestCase):
 
     def test_raw_to_jpeg(self):
         filename = './tests/testdata/dummy.mhd'
-        result = toolbox.raw_to_jpeg(filename)
+        slices = 1
+        result = toolbox.raw_to_jpeg(filename, slices)
         plt.title('test_raw_to_jpeg')
-        plt.imshow(result)
+        plt.imshow(result[0])
         plt.show()
-        self.assertEqual(len(result.shape), 3)
+        self.assertEqual(len(result), slices)
 
     def test_nifti_to_jpeg(self):
         filename = './tests/testdata/dummy.nii.gz'
