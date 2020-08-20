@@ -34,6 +34,16 @@ def quantize_hu_rgb(hu_data, window_length=-600, window_width=1500):
 
     return image_rgb
 
+def remove_padding(slice, rows, columns):
+    # remove padding (don't know why some dicom slices come with padding)
+    if rows > CT_SIZE:
+        row_padding = max(rows - CT_SIZE, 0) // 2
+        pixel_data = slice[row_padding:-row_padding,:]
+    if columns > CT_SIZE:
+        column_padding = max(columns - CT_SIZE, 0) // 2
+        pixel_data = slice[:, column_padding:-column_padding]
+    return slice
+
 def dicom_to_jpeg(dicom_file, window_length=-600, window_width=1500):
     """
     Reads DICOM file and returns it in JPEG equivalent format
@@ -46,19 +56,14 @@ def dicom_to_jpeg(dicom_file, window_length=-600, window_width=1500):
     ds = pydicom.dcmread(dicom_file)
     b = ds.RescaleIntercept
     m = ds.RescaleSlope
-    slice = m * ds.pixel_array + b
+    pixel_data = m * ds.pixel_array + b
 
-    # remove padding (don't know why some slices come with padding)
-    if ds.Rows > CT_SIZE:
-        row_padding = max(ds.Rows - 512, 0) // 2
-        slice = slice[row_padding:-row_padding,:]
-    if ds.Columns > CT_SIZE:
-        column_padding = max(ds.Columns - 512, 0) // 2
-        slice = slice[:, column_padding:-column_padding]
-
+    jpegs = []
+    slice = remove_padding(pixel_data, ds.Rows, ds.Columns)
     jpeg = quantize_hu_rgb(slice, window_length, window_width)
+    jpegs.append(jpeg)
 
-    return jpeg
+    return jpegs
 
 def nifti_to_jpeg(nifti_file, num_slices=1, window_length=-600, window_width=1500):
     """

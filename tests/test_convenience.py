@@ -7,9 +7,9 @@ class TestToolbox(unittest.TestCase):
         filename = './tests/testdata/dummy.dcm'
         result = toolbox.dicom_to_jpeg(filename)
         plt.title('test_dicom_to_jpeg')
-        plt.imshow(result)
+        plt.imshow(result[0])
         plt.show()
-        self.assertEqual(len(result.shape), 3)
+        self.assertEqual(len(result), 1)
 
     def test_raw_to_jpeg(self):
         filename = './tests/testdata/dummy.mhd'
