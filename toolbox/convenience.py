@@ -57,13 +57,9 @@ def dicom_to_jpeg(dicom_file, window_length=-600, window_width=1500):
     b = ds.RescaleIntercept
     m = ds.RescaleSlope
     pixel_data = m * ds.pixel_array + b
-
-    jpegs = []
     slice = remove_padding(pixel_data, ds.Rows, ds.Columns)
     jpeg = quantize_hu_rgb(slice, window_length, window_width)
-    jpegs.append(jpeg)
-
-    return jpegs
+    return jpeg
 
 def nifti_to_jpeg(nifti_file, num_slices=1, window_length=-600, window_width=1500):
     """
